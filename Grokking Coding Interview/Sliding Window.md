@@ -34,4 +34,6 @@ This can be reinterpreted as finding the longest substring with 2 distinct chara
 Start from the first index and extend the sliding window. Keep a hashmap for the current window, updating it when moving (removing old count and adding new count). If the next character to be added to the window has a conflict with the current window, move the window one index (i.e remove the first entry).
 
 ### Longest Substring with Same Letters after Replacement
+> Given a string with lowercase letters only, if you are allowed to **replace no more than $k$ letters** with any letter, find the **length of the longest substring having the same letters** after replacement.
 
+Start a sliding window from the first index, keeping track of the current number of letters to replace and a map of the current letters. Ensure the count of one letter is at least $n-k$. If the number of letters to replace is greater than $k$, move the window over one.
