@@ -1,5 +1,5 @@
 # Two Pointers
-Useful in problems with sorted arrays or linked lists to find a ceratin set of elements that fulfill constraints. The set of elements could be a pair, triplet or a subarray. 
+Useful in problems with sorted arrays or linked lists to find a ceratin set of elements that fulfill constraints. The set of elements could be a pair, triplet or a subarray as in [[Sliding Window]]. 
 
 ## Example
 > Given an array of sorted numbers and a target sum, find a pair in the array whose sum is equal to the given target.
