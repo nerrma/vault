@@ -5,12 +5,12 @@ Given two intervals, there will be 6 ways that they interact with eachother:
 
 ![[Pasted image 20220514220910.png]]
 
-1. `a.start <= b.start` and `a.end <= b.end`.
+1. `a.start < b.start` and `a.end < b.end` and `a.end < b.start` and `a.start < b.end`.
 2. `a.start <= b.start` and `a.end >= b.start`.
 3. `a.start <= b.start` and `a.end >= b.end`.
 4. `a.start >= b.start` and `a.start <= b.end`.
 5. `a.start >= b.start` and `a.end <= b.end`.
-6. `a.start >= b.start` and `a.end >= b.end`.
+6. `a.start > b.start` and `a.end > b.end` and `a.end > b.start` and `a.start > b.end`.
 
 ## Example
 > Given a list of intervals, **merge all the overlapping intervals** to produce a list that has only mutually exclusive intervals.
