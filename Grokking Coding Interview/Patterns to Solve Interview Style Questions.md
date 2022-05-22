@@ -5,3 +5,4 @@
 - Cyclic linked lists or arrays - [[Fast and Slow Pointers]]
 - For problems with Intervals/Scheduling - [[Merge Intervals]]
 - Unsorted unique numbers to sorted - [[Cyclic Sort]]
+- Reverse linked list - [[In-place Reversal of Linked List]]
