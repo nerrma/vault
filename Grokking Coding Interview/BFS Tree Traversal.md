@@ -1,5 +1,5 @@
 # BFS Tree Traversal
-Useful for level-order tree traversal and various searching. Implemented using a queue to keep track of nodes on a level before jumping to the next level.
+Useful for level-order tree traversal and various searching. Implemented using a queue to keep track of nodes on a level before jumping to the next level. Also guaranteed to find the target node unlike DFS, which may get stuck in a loop.
 
 Psudeocode of BFS:
 ```
