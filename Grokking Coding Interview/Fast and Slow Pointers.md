@@ -1,3 +1,6 @@
+---
+tags: [interview]
+---
 # Fast and Slow Pointers
 This approach is useful for cyclic linked lists or arrays. As the two pointers move at different speeds, they are bound to meet (i.e finding the middle of a linked list).
 

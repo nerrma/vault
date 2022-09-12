@@ -1,3 +1,6 @@
+---
+tags: [interview]
+---
 # Reversal of Linked list
 Doing an in-place reversal of a linked-list is a common problem asked in easier to mid-level interviews (with modification). Without using extra memory, it is difficult to find an efficient solution.
 
