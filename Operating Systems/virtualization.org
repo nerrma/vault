@@ -1,0 +1,74 @@
+* Virtualization
+
+** Processes
+
+We need a way to separate different programs and their operations in the operating system to allow for fair resource usage and to manage security.
+
+In its most basic form, a process is essentially allocated space for text, its stack and a heap portion in memory. Its progress is then tracked with a program counter and stepped until it finishes execution.
+
+In operating systems, processes are assigned an address space where all of their memory is stored. This is to separate the memory of all processes and for general operating system safety (i.e exceptions when memory outside a process' address space is manipulated). The general information for a process is stored somewhere in this address space in a section called the Process Control Block  or PCB. Here, we can store information such as the process ID, values of certain registers, its stack pointers and other relevant information.  In the xv6 kernel the following information is stored:
+
+#+BEGIN_SRC c
+    struct proc {
+        char *mem; // Start of process memory
+        uint sz; // Size of process memory
+        char *kstack; // Bottom of kernel stack for this process
+        enum proc_state state; // Process state
+        int pid; // Process ID
+        struct proc *parent; // Parent process
+        void *chan; // If !zero, sleeping on chan
+        int killed; // If !zero, has been killed
+        struct file *ofile[NOFILE]; // Open files
+        struct inode *cwd; // Current directory
+        struct context context; // Switch here to run process
+        struct trapframe *tf; // Trap frame for the current interrupt
+    };
+#+END_SRC
+
+Here, the `context` struct stores values of certain registers needed for a context switch, which is to be discussed later.
+
+Now, this process is created with the goal of abstracting and virtualising CPU compute to programs running on the system. The operating system provides an API to create and manage processes.  Namely, we need to be able to create, destroy, suspend, control and get general information on the status of a process. This functionality is all provided by the operating system - and we'll later see an interface which is used by processes themselves to interact with the kernel and subsequently the hardware to achieve their end goal.
+
+Processes typically have 3 states: running, ready and blocked. These should intuitively make sense in the context of computer programs.
+
+- Running is obvious - the process is running and executing its code
+- Ready - the process is ready to be resumed to a running state
+- Blocked - the process is awaiting another process or operating to continue (typically awaiting I/O)
+
+A process first needs to be 'ready' before 'running'. This notion will become clear in later discussions on scheduling, but for now, think of this as essentially adding the process to a queue - ready to start running after the others finished. Because of this, we can go from running to ready and also to blocked. But, we can only go from blocked to ready and obviously we can only go to running when ready.
+
+*** Processes API
+In UNIX the operating system has a simple API we can use for processes. The three main commands are:
+
+- ~fork()~ - forks the current process from the point it is called, the next process is spawned as a child of the current one.
+- ~exec()~ - starts another process from the point it is called. Replaces the current process in memory entirely.
+- ~wait()~ - waits for a certain process with a PID to finish running.
+
+** (Limited) Direct Execution
+
+When running a process on a CPU, we need to account for its use of resources and its permissions to interact with certain parts of the hardware. Let's not worry about the efficiency of the current operating system (we'll discuss this problem in [[Scheduling]]).
+
+If we allow processes limited direct execution (i.e running straight after they start), we'll run into two major problems.
+
+*** Restricted Operations
+The first major problem with direct execution is the fact that the operating system and processes need to share control of the CPU for regulation of the resources. So, if a process needs to access a piece of hardware, it will call on the API of the operating system - which will then do the work and bookkeeping required to then allocate these resources. Without this, processes could access all resources at their own whim, which leads to an unstable and obviously unsafe system.
+
+These 'API calls' that processes need to make have many forms - though we refer to them as **system calls**. In this basic example, when a process makes a system call, we hand the CPU over to the operating system to then process this request. In practice, system calls are implemented by an assembly instruction (namely ~syscall~) which then 'traps' into the kernel to process the request. The arguments for the system call and the system call number itself are placed in well-known registers for the kernel to pickup and process.
+
+A **trap** is when we enter the kernel from a process to execute a system call. To successfully return back to the process that was just running, the operating system needs to store the values of all of the registers before entering the trap. The values of important registers are pushed onto the kernel stack and popped once the kernel has finished its work.
+
+*** Switching Between Processes
+The next problem with direct execution is switching processes. Though, this introduces some problems:
+- How does the OS know when to take control of the resources and switch processes?
+- What if a program never stops running?
+
+There are two main camps of thought in resolving this problem, cooperative and non-cooperative control.
+
+Cooperative control waits for system calls to let the OS take control of the resources and do its processing. This approach is still susceptible to malicious processes controlling the entire system and never handing control back to the operating system.
+
+Non-cooperative methods interrupt the process running to let the OS control use the resources for processing. The flow of the program is therefore interrupted, though the OS has a pre-determined claim of the resources to ensure it can process any requests and also fully control the distribution of resources. This approach is common in modern operating systems as it allows for much improved security. The interruptions to a process are aptly named interrupts which allow for kernel control.
+
+We've discussed changing processes and interrupting running ones, but never discussed how they're done. First, consider what state we'd need to store to remember a process and where it's up to. We'd need to values of the main registers (including the program counter, instruction pointer etc.) and values of the stack and frame pointers to return to later. Similar to the trap we saw with system calls previously, we store this data and perform what's generally known as a **context switch** - switching the context of the CPU to one of a different process.
+
+
+** Scheduling
